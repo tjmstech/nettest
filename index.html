@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>친구 연결 테스트</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--f:"Jua","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;--ink:#0b1f2a;--lime:#c6ff6b;--teal:#8fd8c8}
+*{box-sizing:border-box}
+html{background:#06121a}
+body{margin:0;min-height:100vh;font-family:var(--f);color:#fff;background:radial-gradient(circle at 50% 0,#12303c 0,#06121a 60%) fixed;padding:18px 12px 40px}
+.wrap{max-width:520px;margin:0 auto}
+.px{font-family:'Press Start 2P',monospace}
+h1{margin:6px 0 2px;text-align:center;font-size:36px;font-weight:400;text-shadow:3px 0 0 var(--ink),-3px 0 0 var(--ink),0 3px 0 var(--ink),0 -3px 0 var(--ink),0 6px 0 #2f6e9e}
+.tag{text-align:center;font-size:9px;color:var(--lime);letter-spacing:1px;margin:8px 0 14px}
+.card{background:rgba(9,30,40,.94);border:4px solid #fff;box-shadow:0 0 0 4px var(--ink);padding:14px;margin:14px 0}
+.card h2{margin:0 0 8px;font-size:19px;font-weight:400;color:var(--lime)}
+p,.note{margin:6px 0;line-height:1.55;color:#cfe8f0;font-size:15px}
+.note{font-size:13px;color:var(--teal)}
+button{font-family:var(--f);cursor:pointer}
+.big{display:block;width:100%;padding:13px;font-size:21px;color:var(--ink);background:var(--lime);border:4px solid var(--ink);box-shadow:inset -4px -4px 0 #7cc23a,inset 4px 4px 0 #eaffc4,0 5px 0 var(--ink);margin:8px 0}
+.big.sec{background:#ffd23f;box-shadow:inset -4px -4px 0 #c99a12,inset 4px 4px 0 #fff1b0,0 5px 0 var(--ink)}
+.big:active{transform:translateY(2px)}
+.big:disabled{opacity:.55}
+input{font-family:var(--f);font-size:22px;text-align:center;width:100%;padding:10px;color:#fff;background:#06121a;border:3px solid #2c6a7c;outline:none;margin:4px 0}
+input:focus{border-color:var(--lime)}
+.code{font-size:44px;text-align:center;letter-spacing:10px;color:#ffd23f;margin:6px 0 2px}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.dev{background:#0e2733;border:3px solid #1f4a5a;padding:10px;margin:8px 0}
+.dev .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.dev .nm{font-size:17px}
+.badge{font-size:13px;padding:2px 8px;color:var(--ink);background:#7d8f99;white-space:nowrap}
+.badge.ok{background:var(--lime)}.badge.mid{background:#ffd23f}.badge.bad{background:#ff6b7a}
+.dev .sub{font-size:13px;color:var(--teal);margin-top:4px;line-height:1.5}
+.bars{display:flex;align-items:flex-end;gap:2px;height:34px;margin-top:6px}
+.bars i{flex:1;background:var(--lime);min-height:2px}
+.verdict{font-size:17px;line-height:1.6;padding:10px;background:#0b1f2a;border:3px solid #2c6a7c;margin-top:8px}
+.verdict b{color:var(--lime);font-weight:400}
+.err{color:#ff8b96;min-height:1.2em;font-size:14px;margin-top:4px}
+.log{font-size:12px;color:#6f98a5;white-space:pre-wrap;max-height:120px;overflow:auto;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;color:#cfe8f0}
+td{padding:4px 2px;border-bottom:1px solid #1f4a5a;vertical-align:top}
+td:first-child{color:var(--lime);white-space:nowrap;padding-right:8px}
+a{color:var(--teal)}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>친구 연결 테스트</h1>
+  <div class="tag px">NETWORK CHECK</div>
+
+  <!-- 처음 화면 -->
+  <div id="home">
+    <div class="card">
+      <h2>무엇을 알아보나요?</h2>
+      <p>여러 기기가 <b>학교 와이파이에서 서로 직접 연결</b>되는지, 연결되면 신호가 오가는 데 얼마나 걸리는지 재요.</p>
+      <p class="note">한 기기에서 <b>방 만들기</b> → 나머지 기기에서 그 번호로 <b>참가</b>하면 돼요. 최대 8대까지 함께 테스트할 수 있어요.</p>
+    </div>
+    <div class="card">
+      <h2>이 기기 이름</h2>
+      <input id="devName" maxlength="16" placeholder="예: 선생님 탭">
+      <button class="big" id="hostBtn">방 만들기</button>
+      <div class="row"><input id="joinCode" inputmode="numeric" maxlength="4" placeholder="방 번호 4자리"><button class="big sec" id="joinBtn" style="margin:4px 0">참가</button></div>
+      <div class="err" id="homeErr"></div>
+    </div>
+    <div class="card">
+      <h2>이렇게 테스트해 보세요</h2>
+      <table>
+        <tr><td>① 기본</td><td>기기 2대 모두 <b>학교 와이파이</b>에 연결하고 테스트</td></tr>
+        <tr><td>② 여러 대</td><td>4~6대를 한 방에 모아서 테스트 (실제 3대3 상황)</td></tr>
+        <tr><td>③ 비교</td><td>한 대는 와이파이, 한 대는 <b>LTE/5G 데이터</b>로 테스트</td></tr>
+        <tr><td>④ 장소</td><td>다른 교실이나 다른 와이파이 이름(SSID)에서도 한 번</td></tr>
+      </table>
+      <p class="note">결과 화면의 <b>결과 복사</b>를 눌러 보내 주시면 어떤 방식으로 게임을 만들지 정할 수 있어요.</p>
+    </div>
+  </div>
+
+  <!-- 방 화면 -->
+  <div id="room" class="hide">
+    <div class="card">
+      <h2 id="roleT">방 번호</h2>
+      <div class="code px" id="codeT">----</div>
+      <p class="note" id="roleNote"></p>
+    </div>
+    <div class="card">
+      <h2>연결된 기기</h2>
+      <div id="devs"><p class="note">기다리는 중…</p></div>
+    </div>
+    <div class="card">
+      <h2>Firebase 서버 왕복 시간</h2>
+      <div id="fbT" class="note">재는 중…</div>
+      <p class="note">기기끼리 직접 연결이 안 될 때는 서버를 거쳐 주고받아야 해요. 그때의 지연이에요.</p>
+    </div>
+    <div class="card">
+      <h2>결과</h2>
+      <div class="verdict" id="verdict">테스트 중…</div>
+      <button class="big" id="copyBtn">결과 복사</button>
+      <button class="big sec" id="leaveBtn">나가기</button>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</div>
+
+<script src="../config.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const C=window.COWRUN_CONFIG||{};
+const DB=(C.databaseURL||'').replace(/\/+$/,'');
+const ICE={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}]};
+const NOW=()=>performance.now();
+let ROLE=null,CODE=null,ME=Math.random().toString(36).slice(2,10),NAME='',peers={},fbMs=null,es=null,localTypes=new Set();
+function log(t){const l=$('log');l.textContent+=new Date().toLocaleTimeString('ko-KR')+'  '+t+'\n';l.scrollTop=1e9;}
+function guessName(){const u=navigator.userAgent;if(/iPad/.test(u))return 'iPad';if(/iPhone/.test(u))return 'iPhone';
+  const m=u.match(/Android[^;]*;\s*([^;)]+?)(?:\sBuild|\))/);if(m)return m[1].trim().slice(0,16);if(/Windows/.test(u))return 'Windows PC';if(/Mac/.test(u))return 'Mac';if(/CrOS/.test(u))return '크롬북';return '기기';}
+$('devName').value=(()=>{try{return localStorage.getItem('ntName')||guessName();}catch(e){return guessName();}})();
+
+async function db(method,path,body){const r=await fetch(DB+'/nettest'+path+'.json',{method,headers:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),keepalive:method==='DELETE'});if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
+function listen(path,cb){const e=new EventSource(DB+'/nettest'+path+'.json');
+  e.addEventListener('put',ev=>{const m=JSON.parse(ev.data);cb(m.path,m.data,false);});
+  e.addEventListener('patch',ev=>{const m=JSON.parse(ev.data);cb(m.path,m.data,true);});return e;}
+
+/* ICE 후보를 다 모은 뒤 한 번에 주고받아요 (최대 4초) */
+function gather(pc){return new Promise(res=>{if(pc.iceGatheringState==='complete')return res();
+  const t=setTimeout(res,4000);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);res();}});});}
+function candTypes(sdp){const s=new Set();(sdp||'').split('\n').forEach(l=>{const m=l.match(/ typ (host|srflx|prflx|relay)/);if(m)s.add(m[1]);});return s;}
+
+/* ---------- 방 만들기 (호스트) ---------- */
+$('hostBtn').onclick=async()=>{
+  if(!DB){$('homeErr').textContent='config.js가 없어서 서버에 연결할 수 없어요. tjmstech.github.io/nettest/ 주소에서 열어 주세요.';return;}
+  NAME=saveName();$('hostBtn').disabled=true;
+  try{
+    for(let i=0;i<10;i++){const c=String(1000+Math.floor(Math.random()*9000));const ex=await db('GET','/'+c);if(!ex||Date.now()-(ex.t||0)>3*3600e3){CODE=c;break;}}
+    if(!CODE)throw new Error('방 번호를 만들지 못했어요');
+    await db('PUT','/'+CODE,{host:ME,name:NAME,t:{'.sv':'timestamp'}});
+  }catch(e){$('homeErr').textContent='서버에 연결하지 못했어요. ('+e.message+') Firebase 규칙에 nettest가 있는지 확인해 주세요.';$('hostBtn').disabled=false;return;}
+  ROLE='host';enterRoom();
+  $('roleT').textContent='방 번호';$('roleNote').textContent='다른 기기에서 이 번호로 참가하세요. 이 화면을 켜 둔 채로 기다려 주세요.';
+  es=listen('/'+CODE+'/peers',(path,data)=>{
+    const p=path.split('/').filter(Boolean);
+    if(!p.length){for(const k in (data||{}))onPeer(k,data[k]);}else if(p.length===1&&data)onPeer(p[0],data);
+  });
+  fbTest();
+};
+async function onPeer(pid,d){
+  if(peers[pid]||!d||!d.offer)return;
+  const P=peers[pid]={name:d.name||'기기',rtt:[],state:'연결 중',t0:NOW()};render();log(P.name+' 참가 요청');
+  const pc=P.pc=new RTCPeerConnection(ICE);
+  pc.ondatachannel=e=>setupDc(P,e.channel);
+  watchPc(P);
+  try{
+    await pc.setRemoteDescription({type:'offer',sdp:d.offer});
+    await pc.setLocalDescription(await pc.createAnswer());
+    await gather(pc);
+    localTypes=new Set([...localTypes,...candTypes(pc.localDescription.sdp)]);
+    P.remoteCands=[...candTypes(d.offer)];
+    await db('PUT','/'+CODE+'/peers/'+pid+'/answer',pc.localDescription.sdp);
+  }catch(e){P.state='실패';P.err=e.message;render();}
+  setTimeout(()=>{if(!P.open){P.state='실패';P.err=P.err||'직접 연결이 만들어지지 않았어요';render();verdict();}},20000);
+}
+
+/* ---------- 참가 ---------- */
+$('joinBtn').onclick=async()=>{
+  const c=$('joinCode').value.trim();
+  if(!/^\d{4}$/.test(c)){$('homeErr').textContent='방 번호 4자리를 적어 주세요.';return;}
+  if(!DB){$('homeErr').textContent='config.js가 없어서 서버에 연결할 수 없어요.';return;}
+  NAME=saveName();$('joinBtn').disabled=true;
+  let room;try{room=await db('GET','/'+c);}catch(e){$('homeErr').textContent='서버에 연결하지 못했어요. ('+e.message+')';$('joinBtn').disabled=false;return;}
+  if(!room||!room.host){$('homeErr').textContent='그런 방이 없어요. 번호를 확인해 주세요.';$('joinBtn').disabled=false;return;}
+  CODE=c;ROLE='guest';enterRoom();
+  $('roleT').textContent='참가한 방';$('roleNote').textContent=(room.name||'방장')+' 기기와 연결하는 중이에요.';
+  const P=peers.host={name:room.name||'방장',rtt:[],state:'연결 중',t0:NOW()};render();
+  const pc=P.pc=new RTCPeerConnection(ICE);
+  setupDc(P,pc.createDataChannel('t',{ordered:false,maxRetransmits:0}));
+  watchPc(P);
+  try{
+    await pc.setLocalDescription(await pc.createOffer());
+    await gather(pc);
+    localTypes=new Set(candTypes(pc.localDescription.sdp));
+    await db('PUT','/'+CODE+'/peers/'+ME,{name:NAME,offer:pc.localDescription.sdp,t:{'.sv':'timestamp'}});
+    log('연결 요청을 보냈어요');
+    es=listen('/'+CODE+'/peers/'+ME+'/answer',async(path,data)=>{
+      if(typeof data==='string'&&!pc.remoteDescription){P.remoteCands=[...candTypes(data)];try{await pc.setRemoteDescription({type:'answer',sdp:data});log('방장의 응답을 받았어요');}catch(e){P.state='실패';P.err=e.message;render();}}
+    });
+  }catch(e){P.state='실패';P.err=e.message;render();}
+  setTimeout(()=>{if(!P.open){P.state='실패';P.err=P.err||'직접 연결이 만들어지지 않았어요';render();verdict();}},20000);
+  fbTest();
+};
+
+function saveName(){const n=($('devName').value.trim()||guessName()).slice(0,16);try{localStorage.setItem('ntName',n);}catch(e){}return n;}
+function enterRoom(){$('home').classList.add('hide');$('room').classList.remove('hide');$('codeT').textContent=CODE;log('방 '+CODE+' · '+(ROLE==='host'?'방장':'참가자'));}
+
+/* ---------- 연결 상태와 핑 ---------- */
+function watchPc(P){
+  P.pc.onconnectionstatechange=()=>{const s=P.pc.connectionState;log(P.name+': '+s);
+    if(s==='failed'){P.state='실패';P.err='직접 연결에 실패했어요';P.open=false;}
+    if(s==='disconnected'||s==='closed'){P.state='끊김';P.open=false;}
+    render();verdict();};
+}
+function setupDc(P,dc){
+  P.dc=dc;
+  dc.onopen=async()=>{P.open=true;P.state='연결됨';P.tOpen=NOW()-P.t0;log(P.name+'와 직접 연결됨 ('+Math.round(P.tOpen)+'ms)');
+    P.timer=setInterval(()=>{if(dc.readyState==='open')dc.send(JSON.stringify({p:NOW()}));},400);
+    setTimeout(()=>route(P),800);render();verdict();};
+  dc.onmessage=e=>{const m=JSON.parse(e.data);
+    if(m.p!==undefined)dc.send(JSON.stringify({q:m.p}));
+    else if(m.q!==undefined){P.rtt.push(NOW()-m.q);if(P.rtt.length>60)P.rtt.shift();P.sent=(P.sent||0)+1;render();if(P.rtt.length%5===0)verdict();}};
+  dc.onclose=()=>{P.open=false;P.state='끊김';clearInterval(P.timer);render();verdict();};
+}
+async function route(P){ // 실제로 쓰인 연결 경로
+  try{const st=await P.pc.getStats();let pair=null;const by={};st.forEach(r=>by[r.id]=r);
+    st.forEach(r=>{if(r.type==='transport'&&r.selectedCandidatePairId)pair=by[r.selectedCandidatePairId];});
+    if(!pair)st.forEach(r=>{if(r.type==='candidate-pair'&&r.state==='succeeded'&&(r.nominated||!pair))pair=r;});
+    if(pair){const l=by[pair.localCandidateId],r=by[pair.remoteCandidateId];P.route=[l&&l.candidateType,r&&r.candidateType];P.proto=l&&l.protocol;}
+  }catch(e){}
+  render();verdict();
+}
+function stats(a){if(!a.length)return null;const s=[...a].sort((x,y)=>x-y);const avg=a.reduce((x,y)=>x+y,0)/a.length;
+  return {avg:Math.round(avg),min:Math.round(s[0]),max:Math.round(s[s.length-1]),med:Math.round(s[s.length>>1]),jit:Math.round(Math.sqrt(a.reduce((x,y)=>x+(y-avg)**2,0)/a.length))};}
+function grade(ms){if(ms==null)return ['bad','-'];if(ms<40)return ['ok','아주 좋음'];if(ms<90)return ['ok','좋음'];if(ms<180)return ['mid','보통'];return ['bad','느림'];}
+function routeText(P){if(!P.route)return '';const [a,b]=P.route;
+  if(a==='host'&&b==='host')return '같은 와이파이 안에서 직접';
+  if(a==='relay'||b==='relay')return '중계 서버를 거쳐';
+  return '인터넷을 거쳐 직접 (와이파이 안 직접 통신은 막힘)';}
+function render(){
+  const box=$('devs'),ks=Object.keys(peers);box.textContent='';
+  if(!ks.length){box.innerHTML='<p class="note">아직 아무도 참가하지 않았어요.</p>';return;}
+  for(const k of ks){const P=peers[k],s=stats(P.rtt),[g,gt]=P.open&&s?grade(s.med):[P.state==='실패'?'bad':'',P.state];
+    const d=document.createElement('div');d.className='dev';
+    d.innerHTML=`<div class="top"><span class="nm"></span><span class="badge ${g}">${P.open&&s?gt+' · '+s.med+'ms':P.state}</span></div><div class="sub"></div><div class="bars"></div>`;
+    d.querySelector('.nm').textContent=P.name;
+    d.querySelector('.sub').textContent=P.open&&s?`왕복 평균 ${s.avg}ms · 최소 ${s.min} · 최대 ${s.max} · 흔들림 ${s.jit}ms`+(P.route?` · ${routeText(P)}`:''):(P.err||'');
+    const bars=d.querySelector('.bars');const top=Math.max(60,...P.rtt);P.rtt.slice(-40).forEach(v=>{const i=document.createElement('i');i.style.height=Math.max(4,v/top*100)+'%';if(v>180)i.style.background='#ff6b7a';else if(v>90)i.style.background='#ffd23f';bars.appendChild(i);});
+    box.appendChild(d);}
+}
+/* ---------- Firebase 왕복 ---------- */
+async function fbTest(){
+  const a=[];
+  for(let i=0;i<6;i++){const t=NOW();try{await db('PUT','/'+CODE+'/fb/'+ME,{t:{'.sv':'timestamp'}});a.push(NOW()-t);}catch(e){}await new Promise(r=>setTimeout(r,300));}
+  a.shift();const s=stats(a);fbMs=s?s.med:null;
+  $('fbT').innerHTML=s?`<b style="color:#fff;font-weight:400">${s.med}ms</b> (최소 ${s.min} · 최대 ${s.max})`:'재지 못했어요';verdict();
+}
+/* ---------- 결과 판정 ---------- */
+function verdict(){
+  const ks=Object.keys(peers),open=ks.filter(k=>peers[k].open),fail=ks.filter(k=>peers[k].state==='실패');
+  const all=[].concat(...open.map(k=>peers[k].rtt)),s=stats(all);
+  const lan=open.some(k=>routeText(peers[k]).startsWith('같은')),wan=open.some(k=>routeText(peers[k]).startsWith('인터넷'));
+  let h='';
+  if(!ks.length)h=ROLE==='host'?'다른 기기가 참가하면 결과가 나와요.':'연결하는 중…';
+  else if(open.length&&s){
+    h=`<b>✔ 직접 연결 성공</b> (${open.length}대${fail.length?', 실패 '+fail.length+'대':''})<br>왕복 ${s.med}ms · ${grade(s.med)[1]}<br>`;
+    h+=lan?'같은 와이파이 안에서 기기끼리 바로 연결돼요. <b>실시간 대전을 만들기에 가장 좋은 환경</b>이에요.':wan?'와이파이 안 직접 통신은 막혀 있지만, 인터넷을 거쳐 직접 연결됐어요. 실시간 대전 가능해요.':'연결 경로를 확인하는 중이에요.';
+    if(s.med>=180)h+='<br>다만 지연이 커서 총게임보다는 느긋한 대전이 어울려요.';
+  }else if(fail.length&&!open.length){
+    h=`<b style="color:#ff8b96">✘ 직접 연결 실패</b><br>이 네트워크는 기기끼리 직접 통신을 막아 두었어요.<br>서버를 거쳐 주고받아야 하고, 그때 지연은 약 ${fbMs!=null?fbMs+'ms':'(재는 중)'}이에요.`;
+  }else h='연결하는 중…';
+  $('verdict').innerHTML=h;
+}
+$('copyBtn').onclick=async()=>{
+  const ks=Object.keys(peers),lines=[`[친구 연결 테스트] ${new Date().toLocaleString('ko-KR')}`,`이 기기: ${NAME} (${ROLE==='host'?'방장':'참가자'}) · 후보 ${[...localTypes].join(',')||'-'}`,`Firebase 왕복: ${fbMs!=null?fbMs+'ms':'-'}`];
+  for(const k of ks){const P=peers[k],s=stats(P.rtt);lines.push(`- ${P.name}: ${P.open&&s?`연결됨 · 중간값 ${s.med}ms · 평균 ${s.avg} · 최대 ${s.max} · 흔들림 ${s.jit} · ${routeText(P)||'-'} (${(P.route||[]).join('/')}${P.proto?' '+P.proto:''}) · 연결까지 ${Math.round(P.tOpen||0)}ms`:P.state+(P.err?' ('+P.err+')':'')}`);}
+  lines.push('UA: '+navigator.userAgent);
+  const t=lines.join('\n');
+  try{await navigator.clipboard.writeText(t);$('copyBtn').textContent='복사했어요!';}catch(e){prompt('아래 내용을 복사해 주세요',t);}
+  setTimeout(()=>$('copyBtn').textContent='결과 복사',1500);
+};
+$('leaveBtn').onclick=()=>{cleanup();location.reload();};
+function cleanup(){for(const k in peers){try{peers[k].pc.close();}catch(e){}}if(es)es.close();
+  if(CODE)fetch(DB+'/nettest/'+CODE+(ROLE==='host'?'':'/peers/'+ME)+'.json',{method:'DELETE',keepalive:true}).catch(()=>{});}
+addEventListener('pagehide',cleanup);
+$('joinCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('joinBtn').click();});
+</script>
+</body>
+</html>
